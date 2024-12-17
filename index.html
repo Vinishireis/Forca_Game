@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Forca</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="Assets/jogo-da-forca.png" type="image/x-icon">
+ 
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <h1>Jogo da Forca</h1>
+        <div class="hint" id="hint"></div>
+        <canvas id="hangman" width="200" height="200"></canvas>
+        <div class="word" id="word"></div>
+        <div class="keyboard" id="keyboard"></div>
+        <div class="message" id="message"></div>
+    </div>
+
+    <div class="phone-container" id="phoneContainer">
+        <h2>Desafio Bônus</h2>
+        <p>Dica: Número de uma gatinha que tá jogando!</p>
+        <input type="text" id="phone" class="phone-input" placeholder="Ex: 11948519420" />
+        <button class="submit-btn" onclick="submitPhone()">Enviar Número</button>
+    </div>
+
+    <!-- Carregar o EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        emailjs.init('JYoQo6fr9wl810ErJ'); // Substitua pela sua chave pública
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
